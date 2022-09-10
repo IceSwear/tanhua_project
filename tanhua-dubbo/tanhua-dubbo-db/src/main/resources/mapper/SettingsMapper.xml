@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--//映射dao持久层的usermapper相当于都用UserMapper里的方法，id指向方法名，总的给提出来-->
+<mapper namespace="com.tanhua.dubbo.mappers.SettingsMapper">
+    <!--//resulttype,返回到数据库的bean-->
+    <!--    sql这个元素可以用来定义可重用的 SQL 代码片段，以便在其它语句中使用。 参数可以静态地（在加载的时候）确定下来，并且可以在不同的 include 元素中定义不同的参数值。-->
+    <sql id="all_column">
+        id
+        ,user_id,like_notification,pinglun_notification,gonggao_notification,is_deleted
+    </sql>
+    <sql id="base_column">
+        id
+        ,user_id,like_notification,pinglun_notification,gonggao_notification,is_deleted
+    </sql>
+    <!--    保存设置-->
+    <insert id="saveSettings">
+        insert into tb_settings(user_id, like_notification, pinglun_notification, gonggao_notification)
+        values (#{settings.userId}, #{settings.likeNotification}, #{settings.pinglunNotification},
+                #{settings.gonggaoNotification})
+    </insert>
+    <!--    根据id更新设置-->
+    <update id="updateSettingsByUserId">
+        update tb_settings
+        <set>
+            <if test=" settings.likeNotification != null ">
+                like_notification=#{settings.likeNotification},
+            </if>
+            <if test=" settings.pinglunNotification != null ">
+                pinglun_notification=#{settings.pinglunNotification},
+            </if>
+            <if test=" settings.gonggaoNotification != null ">
+                gonggao_notification=#{settings.gonggaoNotification},
+            </if>
+        </set>
+        where user_id=#{userId} and is_deleted='N'
+    </update>
+
+    <!--    根据用户id查询设置信息-->
+    <select id="findByUserId" resultType="com.tanhua.model.domain.Settings">
+        select <include refid="all_column"></include> from tb_settings where user_id=#{userId} and is_deleted='N'
+    </select>
+</mapper>

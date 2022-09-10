@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--//映射dao持久层的usermapper相当于都用UserMapper里的方法，id指向方法名，总的给提出来-->
+<mapper namespace="com.tanhua.dubbo.mappers.UserInfoMapper">
+    <!--//resulttype,返回到数据库的bean-->
+    <!--    sql这个元素可以用来定义可重用的 SQL 代码片段，以便在其它语句中使用。 参数可以静态地（在加载的时候）确定下来，并且可以在不同的 include 元素中定义不同的参数值。-->
+    <sql id="all_column">
+        id
+        ,nickname,avatar,birthday,gender,age,city,income,education,profession,marriage,tags,cover_pic,is_deleted
+    </sql>
+    <sql id="base_column">
+        id
+        ,nickname,avatar,birthday,gender,age,city,income,education,profession,marriage,tags,cover_pic,is_deleted
+    </sql>
+    <!--    保存用户初次信息-->
+    <insert id="saveUserInfo" parameterType="com.tanhua.model.domain.UserInfo">
+        insert into tb_user_info(id, gender, nickname, birthday, city, avatar, cover_pic)
+        values (#{userInfo.id}, #{userInfo.gender}, #{userInfo.nickname}, #{userInfo.birthday}, #{userInfo.city},
+                #{userInfo.avatar}, #{userInfo.avatar})
+    </insert>
+
+    <!--    根据userId来更新头像信息-->
+    <update id="updateAvatarByUserId">
+        update tb_user_info
+        set avatar=#{url}
+        where is_deleted = 'N'
+          and id = #{id}
+    </update>
+
+    <!--    根据id更新个人信息-->
+    <update id="updateUserInfoById">
+        update tb_user_info
+        <set>
+            <if test=" userInfo.nickname != null and userInfo.nickname !=''">
+                nickname=#{userInfo.nickname},
+            </if>
+            <if test=" userInfo.avatar != null and userInfo.avatar !=''">
+                avatar=#{userInfo.avatar},
+            </if>
+            <if test=" userInfo.birthday != null and userInfo.birthday !=''">
+                birthday=#{userInfo.birthday},
+            </if>
+            <if test=" userInfo.gender != null and userInfo.gender !=''">
+                gender=#{userInfo.gender},
+            </if>
+            <if test=" userInfo.age != null and userInfo.age !=''">
+                age=#{userInfo.age},
+            </if>
+            <if test=" userInfo.city != null and userInfo.city !=''">
+                city=#{userInfo.city},
+            </if>
+            <if test=" userInfo.income != null and userInfo.income !=''">
+                income=#{userInfo.income},
+            </if>
+            <if test=" userInfo.education != null and userInfo.education !=''">
+                education=#{userInfo.education},
+            </if>
+            <if test=" userInfo.profession != null and userInfo.profession !=''">
+                profession=#{userInfo.profession},
+            </if>
+            <if test=" userInfo.tags != null and userInfo.tags !='' ">
+                tags=#{userInfo.tags},
+            </if>
+            <if test=" userInfo.avatar != null and userInfo.avatar !=''">
+                cover_pic=#{userInfo.avatar},
+            </if>
+        </set>
+        where id=#{id} and is_deleted='N'
+    </update>
+
+    <!--    根据id查找UserInfo-->
+    <select id="findById" resultType="com.tanhua.model.domain.UserInfo">
+        select <include refid="base_column"></include>  from tb_user_info where id=#{id} and is_deleted='N'
+    </select>
+    <!--    根据用户id查找黑名单详情，这里跨表了-->
+    <select id="getBlackListByUserId" resultType="com.tanhua.model.domain.UserInfo">
+        select <include refid="all_column"></include> from tb_user_info where is_deleted='N' and id in (select
+        black_user_id from
+        tb_black_list where is_deleted='N' and user_id = #{userId} order by updated desc)
+    </select>
+
+    <!--    根据条件在ids集合中查找userInfo的list-->
+    <!--    注意，传入的参数是List<Long> ，如果传入的是array 则需要修改collection="list"部分定义为 collection="array"-->
+    <!--    <if test="condition.nickname !=null and ! condition.nickname.equals('')">-->
+    <select id="getListByIdsWithCondition" resultType="com.tanhua.model.domain.UserInfo">
+        select
+        <include refid="all_column"></include>
+        from tb_user_info
+        <where>
+            <if test="ids != null ">
+                id in
+                <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="condition.gender !=null and condition.gender !=''">
+                and gender = #{condition.gender}
+            </if>
+            --
+            <if test="condition.nickname !=null and condition.nickname !=''">
+                and nickname like "%"#{condition.nickname}"%"
+            </if>
+            <if test="condition.age !=null and condition.age !=''">
+                and age &lt;= #{condition.age}
+            </if>
+        </where>
+    </select>
+</mapper>

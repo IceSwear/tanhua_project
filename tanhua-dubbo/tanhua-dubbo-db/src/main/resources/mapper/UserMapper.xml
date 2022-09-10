@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--//映射dao持久层的usermapper相当于都用UserMapper里的方法，id指向方法名，总的给提出来-->
+<mapper namespace="com.tanhua.dubbo.mappers.UserMapper">
+    <!--//resulttype,返回到数据库的bean-->
+    <!--    sql这个元素可以用来定义可重用的 SQL 代码片段，以便在其它语句中使用。 参数可以静态地（在加载的时候）确定下来，并且可以在不同的 include 元素中定义不同的参数值。-->
+    <sql id="all_column">
+        id
+        ,mobile,password,email,hx_user,hx_password,is_deleted
+    </sql>
+    <sql id="base_column">
+        id
+        ,mobile,password,email,hx_user,hx_password,is_deleted
+    </sql>
+    <!--    添加新用户-->
+    <insert id="addNewUser" parameterType="com.tanhua.model.domain.User">
+        insert into tb_user(mobile, password)
+        values (#{user.mobile}, #{user.password})
+    </insert>
+    <!--    更新环信注册信息-->
+    <update id="updateWithHuanXinInfo" parameterType="com.tanhua.model.domain.User">
+        update tb_user
+        set hx_user=#{user.hxUser},
+            hx_password=#{user.hxPassword}
+        where id = #{user.id}
+          and is_deleted = 'N'
+    </update>
+    <!--    根据id修改手机号-->
+    <update id="updateMobileById">
+        update tb_user
+        set mobile=#{phone}
+        where id = #{userId}
+          and is_deleted = 'N'
+    </update>
+    <!--    根据id查找user-->
+    <select id="getById" resultType="com.tanhua.model.domain.User">
+        select
+        <include refid="base_column"/>
+        from tb_user where id=#{id} and is_deleted='N'
+    </select>
+    <!--    根据手机查找mobile-->
+    <select id="findByMobile" resultType="com.tanhua.model.domain.User">
+        select
+        <include refid="base_column"/>
+        from tb_user where mobile=#{mobile} and is_deleted='N'
+    </select>
+    <!-- 根据邮箱查找-->
+    <select id="findByEmail" resultType="com.tanhua.model.domain.User">
+        select
+        <include refid="base_column"/>
+        from tb_user where email=#{email} and is_deleted='N'
+    </select>
+    <!--    查询所有 -->
+    <select id="findAll" resultType="com.tanhua.model.domain.User">
+        select
+        <include refid="all_column"></include>
+        from tb_user
+        where is_deleted = 'N'
+    </select>
+    <!--  根据用户id查找对象-->
+    <select id="findByUserId" resultType="com.tanhua.model.domain.User">
+        select
+        <include refid="base_column"></include>
+        from tb_user
+        where id =#{id} and is_deleted ='N'
+    </select>
+    <!--    根据环信id查找用户-->
+    <select id="findByHuanxinId" resultType="com.tanhua.model.domain.User">
+        select <include refid="base_column"></include> from tb_user where hx_user=#{huanxinId} and is_deleted ='N'
+    </select>
+</mapper>

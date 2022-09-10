@@ -1,0 +1,99 @@
+package com.tanhua.model.mongo;
+
+import com.tanhua.model.enums.CommentType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.List;
+
+
+/**
+ * @Description: 动态
+ * @Author: Spike Wong
+ * @Date: 2022/8/16
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "movement")
+public class Movement implements java.io.Serializable {
+
+
+    /**
+     * 主键id
+     */
+    private ObjectId id;
+    /**
+     * Long类型，用于推荐系统的模型(自动增长)
+     */
+    private Long pid;
+    /**
+     * 发布时间
+     */
+    private Long created;
+    /**
+     * 发布人
+     */
+    private Long userId;
+    /**
+     * 文字
+     */
+    private String textContent;
+
+    /**
+     * 媒体数据，图片或小视频 url 重点
+     */
+    private List<String> medias;
+    /**
+     * 经度
+     */
+    private String longitude;
+    /**
+     * 纬度
+     */
+    private String latitude;
+    /**
+     * 位置名称
+     */
+    @Field("locationName")
+    private String location;
+    /**
+     * 状态 0：未审（默认），1：通过，2：驳回
+     */
+    private Integer state = 0;
+
+
+    /**
+     * 点赞数
+     */
+    private Integer likeCount = 0;
+    /**
+     * 评论数
+     */
+    private Integer commentCount = 0;
+
+    /**
+     * 喜欢数
+     */
+    private Integer loveCount = 0;
+
+    /**
+     * 根据评论类型，获取对应的互动数量
+     *
+     * @param commentType
+     * @return
+     */
+    public Integer statisCount(Integer commentType) {
+        if (commentType == CommentType.LIKE.getType()) {
+            return this.likeCount;
+        } else if (commentType == CommentType.COMMENT.getType()) {
+            return this.commentCount;
+        } else {
+            return loveCount;
+        }
+    }
+}

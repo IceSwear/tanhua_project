@@ -1,0 +1,40 @@
+package com.tanhua.autoconfig.template;
+
+import com.baidu.aip.face.AipFace;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashMap;
+
+/**
+ * @Description: 百度人脸识别
+ * @Author: Spike Wong
+ * @Date: 2022/8/9
+ */
+public class AipFaceTemplate {
+    @Autowired
+    private AipFace client;
+
+    /**
+     * 检测图片中是否包含人脸
+     * true：包含
+     * false：不包含
+     *
+     * @param imageUrl
+     * @return
+     */
+    public boolean detect(String imageUrl) {
+        // 调用接口
+        String imageType = "URL";
+
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("face_field", "age");
+        options.put("max_face_num", "2");
+        options.put("face_type", "LIVE");
+        options.put("liveness_control", "LOW");
+        JSONObject res = client.detect(imageUrl, imageType, options);
+        System.out.println(res.toString(2));
+        Integer error_code = (Integer) res.get("error_code");
+        return error_code.equals(0);
+    }
+}
