@@ -6,7 +6,7 @@
 
 ### 项目视频展示地址
 
-bilibili.com----TBD
+bilibili.com----https://www.bilibili.com/video/BV1ca411g7TF
 
 ### 技术栈
 
